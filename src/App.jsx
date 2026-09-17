@@ -10,6 +10,7 @@ import Community from "./pages/public/Community";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Notifications from "./pages/notifications/Notifications";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/community" element={<Community />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Routes>
     </div>
   );

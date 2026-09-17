@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import {
   Bell,
   ChevronDown,
@@ -16,9 +16,14 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import api from "../../api/axios";
+
 function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const location = useLocation();
 
   const navLinks = [
     {
@@ -44,6 +49,40 @@ function Navbar() {
         ? "bg-indigo-50 text-indigo-600"
         : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
     }`;
+
+  // ================= GET UNREAD NOTIFICATION COUNT =================
+  const getUnreadNotificationCount = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setUnreadCount(0);
+        return;
+      }
+
+      const response = await api.get(
+        "/notifications/unread-count"
+      );
+
+      const count = response?.data?.data?.count;
+
+      setUnreadCount(
+        typeof count === "number" ? count : 0
+      );
+    } catch (error) {
+      console.error(
+        "Get unread notification count error:",
+        error
+      );
+
+      setUnreadCount(0);
+    }
+  }, []);
+
+  // ================= LOAD NOTIFICATION COUNT =================
+  useEffect(() => {
+    getUnreadNotificationCount();
+  }, [getUnreadNotificationCount, location.pathname]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
@@ -104,23 +143,28 @@ function Navbar() {
             })}
 
             {/* Community */}
-            <NavLink to="/community" className={navLinkClass}>
+            <NavLink
+              to="/community"
+              className={navLinkClass}
+            >
               <MessageCircle className="h-4 w-4" />
               <span>Community</span>
             </NavLink>
 
             {/* Notifications */}
-            <button
-              type="button"
+            <Link
+              to="/notifications"
               className="relative ml-1 flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600"
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5" />
 
-              <span className="absolute right-2 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
-                3
-              </span>
-            </button>
+              {unreadCount > 0 && (
+                <span className="absolute right-1.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </Link>
           </nav>
 
           {/* ================= DESKTOP AUTH ================= */}
@@ -146,19 +190,26 @@ function Navbar() {
           {/* ================= MOBILE ACTIONS ================= */}
           <div className="flex items-center gap-1 md:hidden">
 
-            <button
-              type="button"
+            {/* Mobile Notifications */}
+            <Link
+              to="/notifications"
               className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-50"
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5" />
 
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-            </button>
+              {unreadCount > 0 && (
+                <span className="absolute right-1.5 top-1 flex h-2.5 min-w-2.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-[7px] font-bold text-white">
+                  {unreadCount > 9 ? "" : unreadCount}
+                </span>
+              )}
+            </Link>
 
             <button
               type="button"
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              onClick={() =>
+                setMobileMenuOpen((prev) => !prev)
+              }
               className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-700 transition hover:bg-slate-100"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
@@ -229,6 +280,31 @@ function Navbar() {
             >
               <MessageCircle className="h-4 w-4" />
               Community
+            </NavLink>
+
+            {/* Mobile Notifications */}
+            <NavLink
+              to="/notifications"
+              onClick={() => setMobileMenuOpen(false)}
+              className={navLinkClass}
+            >
+              <div className="relative">
+                <Bell className="h-4 w-4" />
+
+                {unreadCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-[7px] font-bold text-white">
+                    {unreadCount > 9 ? "" : unreadCount}
+                  </span>
+                )}
+              </div>
+
+              <span>Notifications</span>
+
+              {unreadCount > 0 && (
+                <span className="ml-auto rounded-full bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600">
+                  {unreadCount}
+                </span>
+              )}
             </NavLink>
           </div>
 
