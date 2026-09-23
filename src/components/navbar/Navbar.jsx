@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+
 import {
   Bell,
-  ChevronDown,
   Menu,
   Search,
   X,
@@ -20,7 +20,6 @@ import api from "../../api/axios";
 
 function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const location = useLocation();
@@ -50,7 +49,6 @@ function Navbar() {
         : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
     }`;
 
-  // ================= GET UNREAD NOTIFICATION COUNT =================
   const getUnreadNotificationCount = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
@@ -60,50 +58,45 @@ function Navbar() {
         return;
       }
 
-      const response = await api.get(
-        "/notifications/unread-count"
-      );
+      const response = await api.get("/notifications/unread-count");
 
       const count = response?.data?.data?.count;
 
-      setUnreadCount(
-        typeof count === "number" ? count : 0
-      );
+      setUnreadCount(typeof count === "number" ? count : 0);
     } catch (error) {
-      console.error(
-        "Get unread notification count error:",
-        error
-      );
-
+      console.error("Get unread notification count error:", error);
       setUnreadCount(0);
     }
   }, []);
 
-  // ================= LOAD NOTIFICATION COUNT =================
   useEffect(() => {
     getUnreadNotificationCount();
   }, [getUnreadNotificationCount, location.pathname]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
 
-          {/* ================= LOGO ================= */}
+          {/* Logo */}
           <Link
             to="/"
             className="group flex shrink-0 items-center gap-2.5"
-            onClick={() => setMobileMenuOpen(false)}
           >
             <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
               <GraduationCap className="h-5 w-5 text-white" />
-
-              <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
 
             <div className="hidden sm:block">
               <div className="text-lg font-bold tracking-tight text-slate-900">
-                Alumni<span className="text-indigo-600">Connect</span>
+                Alumni
+                <span className="text-indigo-600">
+                  Connect
+                </span>
               </div>
 
               <div className="-mt-0.5 text-[9px] font-medium uppercase tracking-[0.18em] text-slate-400">
@@ -112,7 +105,7 @@ function Navbar() {
             </div>
           </Link>
 
-          {/* ================= DESKTOP SEARCH ================= */}
+          {/* Desktop Search */}
           <div className="hidden flex-1 justify-center px-4 lg:flex">
             <div className="relative w-full max-w-md">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -125,7 +118,7 @@ function Navbar() {
             </div>
           </div>
 
-          {/* ================= DESKTOP NAVIGATION ================= */}
+          {/* Desktop Navigation */}
           <nav className="hidden items-center gap-1 md:flex">
             {navLinks.map((item) => {
               const Icon = item.icon;
@@ -142,7 +135,6 @@ function Navbar() {
               );
             })}
 
-            {/* Community */}
             <NavLink
               to="/community"
               className={navLinkClass}
@@ -151,7 +143,6 @@ function Navbar() {
               <span>Community</span>
             </NavLink>
 
-            {/* Notifications */}
             <Link
               to="/notifications"
               className="relative ml-1 flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600"
@@ -167,9 +158,8 @@ function Navbar() {
             </Link>
           </nav>
 
-          {/* ================= DESKTOP AUTH ================= */}
+          {/* Desktop Authentication */}
           <div className="hidden items-center gap-2 md:flex">
-
             <Link
               to="/login"
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600"
@@ -180,17 +170,16 @@ function Navbar() {
 
             <Link
               to="/register"
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/20 transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98]"
+              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/20 transition-all hover:bg-indigo-700"
             >
               <UserPlus className="h-4 w-4" />
               Register
             </Link>
           </div>
 
-          {/* ================= MOBILE ACTIONS ================= */}
+          {/* Mobile Actions */}
           <div className="flex items-center gap-1 md:hidden">
 
-            {/* Mobile Notifications */}
             <Link
               to="/notifications"
               className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-50"
@@ -199,8 +188,8 @@ function Navbar() {
               <Bell className="h-5 w-5" />
 
               {unreadCount > 0 && (
-                <span className="absolute right-1.5 top-1 flex h-2.5 min-w-2.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-[7px] font-bold text-white">
-                  {unreadCount > 9 ? "" : unreadCount}
+                <span className="absolute right-1.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
             </Link>
@@ -224,7 +213,7 @@ function Navbar() {
         </div>
       </div>
 
-      {/* ================= MOBILE MENU ================= */}
+      {/* Mobile Menu */}
       <div
         className={`overflow-hidden border-t border-slate-100 bg-white transition-all duration-300 md:hidden ${
           mobileMenuOpen
@@ -282,7 +271,6 @@ function Navbar() {
               Community
             </NavLink>
 
-            {/* Mobile Notifications */}
             <NavLink
               to="/notifications"
               onClick={() => setMobileMenuOpen(false)}
@@ -308,7 +296,7 @@ function Navbar() {
             </NavLink>
           </div>
 
-          {/* Mobile Auth */}
+          {/* Mobile Authentication */}
           <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
 
             <Link

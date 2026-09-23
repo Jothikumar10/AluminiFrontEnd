@@ -1,4 +1,3 @@
-import CreatePostModal from "../../components/CreatePostModal";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AtSign,
@@ -78,71 +77,56 @@ function CreatePostModal({
   onClose,
   onPost,
 }) {
-  const [postType, setPostType] =
-    useState("post");
+  const [postType, setPostType] = useState("post");
 
-  const [content, setContent] =
-    useState("");
+  const [content, setContent] = useState("");
 
-  const [media, setMedia] =
-    useState([]);
+  const [media, setMedia] = useState([]);
 
-  const [link, setLink] =
-    useState("");
+  const [link, setLink] = useState("");
 
-  const [showLink, setShowLink] =
-    useState(false);
+  const [showLink, setShowLink] = useState(false);
 
-  const [showPoll, setShowPoll] =
-    useState(false);
+  const [showPoll, setShowPoll] = useState(false);
 
-  const [pollQuestion, setPollQuestion] =
-    useState("");
+  const [pollQuestion, setPollQuestion] = useState("");
 
-  const [pollOptions, setPollOptions] =
-    useState(["", ""]);
+  const [pollOptions, setPollOptions] = useState([
+    "",
+    "",
+  ]);
 
-  const [showJob, setShowJob] =
-    useState(false);
+  const [showJob, setShowJob] = useState(false);
 
-  const [jobData, setJobData] =
-    useState({
-      title: "",
-      company: "",
-      location: "",
-      experience: "",
-      description: "",
-    });
+  const [jobData, setJobData] = useState({
+    title: "",
+    company: "",
+    location: "",
+    experience: "",
+    description: "",
+  });
 
-  const [showEvent, setShowEvent] =
-    useState(false);
+  const [showEvent, setShowEvent] = useState(false);
 
-  const [eventData, setEventData] =
-    useState({
-      title: "",
-      date: "",
-      location: "",
-      description: "",
-    });
+  const [eventData, setEventData] = useState({
+    title: "",
+    date: "",
+    location: "",
+    description: "",
+  });
 
-  const [showEmoji, setShowEmoji] =
-    useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
 
-  const [isUploading, setIsUploading] =
-    useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Separate file inputs
-  const imageInputRef =
-    useRef(null);
+  // =========================================
+  // FILE INPUT REFS
+  // =========================================
 
-  const videoInputRef =
-    useRef(null);
-
-  const audioInputRef =
-    useRef(null);
-
-  const documentInputRef =
-    useRef(null);
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+  const audioInputRef = useRef(null);
+  const documentInputRef = useRef(null);
 
   const emojis = [
     "😊",
@@ -188,10 +172,7 @@ function CreatePostModal({
   // FILE SELECTED
   // =========================================
 
-  const handleFileChange = (
-    event,
-    type
-  ) => {
+  const handleFileChange = (event, type) => {
     const files = Array.from(
       event.target.files || []
     );
@@ -200,22 +181,20 @@ function CreatePostModal({
       return;
     }
 
-    const newMedia = files.map(
-      (file) => ({
-        id: `${Date.now()}-${Math.random()}`,
-        file,
-        type,
-        name: file.name,
-        url: URL.createObjectURL(file),
-      })
-    );
+    const newMedia = files.map((file) => ({
+      id: `${Date.now()}-${Math.random()}`,
+      file,
+      type,
+      name: file.name,
+      url: URL.createObjectURL(file),
+    }));
 
     setMedia((previous) => [
       ...previous,
       ...newMedia,
     ]);
 
-    // Allow selecting same file again
+    // Allow selecting the same file again
     event.target.value = "";
   };
 
@@ -294,10 +273,7 @@ function CreatePostModal({
   // JOB
   // =========================================
 
-  const updateJob = (
-    field,
-    value
-  ) => {
+  const updateJob = (field, value) => {
     setJobData((previous) => ({
       ...previous,
       [field]: value,
@@ -308,10 +284,7 @@ function CreatePostModal({
   // EVENT
   // =========================================
 
-  const updateEvent = (
-    field,
-    value
-  ) => {
+  const updateEvent = (field, value) => {
     setEventData((previous) => ({
       ...previous,
       [field]: value,
@@ -337,16 +310,15 @@ function CreatePostModal({
 
   const uploadMediaToCloudinary =
     async (item) => {
-      const formData =
-        new FormData();
+      const formData = new FormData();
 
       formData.append(
         "file",
         item.file
       );
 
-      // Do NOT manually set Content-Type.
-      // Axios/browser will add the multipart boundary.
+      // Do not manually set Content-Type.
+      // Axios/browser adds the multipart boundary.
       const response = await api.post(
         "/uploads/media",
         formData
@@ -435,23 +407,19 @@ function CreatePostModal({
 
     // Clear file inputs
     if (imageInputRef.current) {
-      imageInputRef.current.value =
-        "";
+      imageInputRef.current.value = "";
     }
 
     if (videoInputRef.current) {
-      videoInputRef.current.value =
-        "";
+      videoInputRef.current.value = "";
     }
 
     if (audioInputRef.current) {
-      audioInputRef.current.value =
-        "";
+      audioInputRef.current.value = "";
     }
 
     if (documentInputRef.current) {
-      documentInputRef.current.value =
-        "";
+      documentInputRef.current.value = "";
     }
   };
 
@@ -520,19 +488,16 @@ function CreatePostModal({
         author: {
           name: "Your Name",
           role: "Student",
-          company:
-            "AlumniConnect",
+          company: "AlumniConnect",
         },
 
         type: postType,
 
-        content:
-          content.trim(),
+        content: content.trim(),
 
         media: uploadedMedia,
 
-        link:
-          link.trim() || null,
+        link: link.trim() || null,
 
         poll: showPoll
           ? {
@@ -691,9 +656,7 @@ function CreatePostModal({
             }}
             className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
           >
-            {/* ================================= */}
             {/* HEADER */}
-            {/* ================================= */}
 
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6">
               <div>
@@ -711,21 +674,16 @@ function CreatePostModal({
               <button
                 type="button"
                 onClick={handleClose}
-                disabled={
-                  isUploading
-                }
+                disabled={isUploading}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <X size={19} />
               </button>
             </div>
 
-            {/* ================================= */}
             {/* BODY */}
-            {/* ================================= */}
 
             <div className="overflow-y-auto p-5 sm:p-6">
-
               {/* USER */}
 
               <div className="flex items-center gap-3">
@@ -739,15 +697,12 @@ function CreatePostModal({
                   </p>
 
                   <p className="text-xs text-slate-500">
-                    Student ·
-                    AlumniConnect
+                    Student · AlumniConnect
                   </p>
                 </div>
               </div>
 
-              {/* ================================= */}
               {/* POST TYPE */}
-              {/* ================================= */}
 
               <div className="mt-5">
                 <p className="mb-2 text-sm font-semibold text-slate-700">
@@ -755,69 +710,52 @@ function CreatePostModal({
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                  {postTypes.map(
-                    (type) => {
-                      const Icon =
-                        type.icon;
+                  {postTypes.map((type) => {
+                    const Icon = type.icon;
 
-                      const active =
-                        postType ===
-                        type.id;
+                    const active =
+                      postType === type.id;
 
-                      return (
-                        <button
-                          key={
+                    return (
+                      <button
+                        key={type.id}
+                        type="button"
+                        disabled={isUploading}
+                        onClick={() =>
+                          setPostType(
                             type.id
-                          }
-                          type="button"
-                          disabled={
-                            isUploading
-                          }
-                          onClick={() =>
-                            setPostType(
-                              type.id
-                            )
-                          }
-                          className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition sm:text-sm ${
-                            active
-                              ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                              : "border-slate-200 text-slate-600 hover:border-indigo-200 hover:bg-slate-50"
-                          } disabled:cursor-not-allowed disabled:opacity-50`}
-                        >
-                          <Icon
-                            size={16}
-                          />
+                          )
+                        }
+                        className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition sm:text-sm ${
+                          active
+                            ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                            : "border-slate-200 text-slate-600 hover:border-indigo-200 hover:bg-slate-50"
+                        } disabled:cursor-not-allowed disabled:opacity-50`}
+                      >
+                        <Icon size={16} />
 
-                          {type.label}
-                        </button>
-                      );
-                    }
-                  )}
+                        {type.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* ================================= */}
               {/* CONTENT */}
-              {/* ================================= */}
 
               <div className="relative mt-5">
                 <textarea
                   value={content}
                   onChange={(event) =>
                     setContent(
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
-                  disabled={
-                    isUploading
-                  }
+                  disabled={isUploading}
                   placeholder={
-                    postType ===
-                    "job"
+                    postType === "job"
                       ? "Share the job opportunity and requirements..."
-                      : postType ===
-                          "career"
+                      : postType === "career"
                         ? "Share your career advice..."
                         : postType ===
                             "achievement"
@@ -835,9 +773,7 @@ function CreatePostModal({
                 <div className="absolute bottom-3 left-3 flex gap-1">
                   <button
                     type="button"
-                    disabled={
-                      isUploading
-                    }
+                    disabled={isUploading}
                     onClick={() =>
                       setShowEmoji(
                         (previous) =>
@@ -851,9 +787,7 @@ function CreatePostModal({
 
                   <button
                     type="button"
-                    disabled={
-                      isUploading
-                    }
+                    disabled={isUploading}
                     onClick={() =>
                       setContent(
                         (previous) =>
@@ -862,9 +796,7 @@ function CreatePostModal({
                     }
                     className="rounded-lg p-2 text-slate-400 transition hover:bg-white hover:text-indigo-600 disabled:opacity-50"
                   >
-                    <AtSign
-                      size={18}
-                    />
+                    <AtSign size={18} />
                   </button>
                 </div>
 
@@ -874,31 +806,25 @@ function CreatePostModal({
 
                 {showEmoji && (
                   <div className="absolute bottom-12 left-0 z-20 flex gap-1 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
-                    {emojis.map(
-                      (emoji) => (
-                        <button
-                          key={
+                    {emojis.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() =>
+                          insertEmoji(
                             emoji
-                          }
-                          type="button"
-                          onClick={() =>
-                            insertEmoji(
-                              emoji
-                            )
-                          }
-                          className="rounded-lg p-2 text-lg transition hover:bg-slate-100"
-                        >
-                          {emoji}
-                        </button>
-                      )
-                    )}
+                          )
+                        }
+                        className="rounded-lg p-2 text-lg transition hover:bg-slate-100"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
 
-              {/* ================================= */}
               {/* MEDIA TOOLBAR */}
-              {/* ================================= */}
 
               <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-3">
                 <p className="mb-3 px-1 text-xs font-bold uppercase tracking-wide text-slate-400">
@@ -906,41 +832,30 @@ function CreatePostModal({
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {mediaOptions.map(
-                    (option) => {
-                      const Icon =
-                        option.icon;
+                  {mediaOptions.map((option) => {
+                    const Icon = option.icon;
 
-                      return (
-                        <button
-                          key={
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        disabled={isUploading}
+                        onClick={() =>
+                          handleMediaClick(
                             option.id
-                          }
-                          type="button"
-                          disabled={
-                            isUploading
-                          }
-                          onClick={() =>
-                            handleMediaClick(
-                              option.id
-                            )
-                          }
-                          className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <Icon
-                            size={19}
-                          />
+                          )
+                        }
+                        className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Icon size={19} />
 
-                          {option.label}
-                        </button>
-                      );
-                    }
-                  )}
+                        {option.label}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* ================================= */}
                 {/* HIDDEN FILE INPUTS */}
-                {/* ================================= */}
 
                 <input
                   ref={imageInputRef}
@@ -985,9 +900,7 @@ function CreatePostModal({
                 />
 
                 <input
-                  ref={
-                    documentInputRef
-                  }
+                  ref={documentInputRef}
                   type="file"
                   accept=".pdf,.doc,.docx"
                   multiple
@@ -1004,9 +917,7 @@ function CreatePostModal({
 
                 <button
                   type="button"
-                  disabled={
-                    isUploading
-                  }
+                  disabled={isUploading}
                   onClick={() =>
                     setShowLink(
                       (previous) =>
@@ -1015,9 +926,7 @@ function CreatePostModal({
                   }
                   className="mt-2 mr-2 inline-flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-50"
                 >
-                  <LinkIcon
-                    size={19}
-                  />
+                  <LinkIcon size={19} />
 
                   Link
                 </button>
@@ -1026,9 +935,7 @@ function CreatePostModal({
 
                 <button
                   type="button"
-                  disabled={
-                    isUploading
-                  }
+                  disabled={isUploading}
                   onClick={() =>
                     setShowPoll(
                       (previous) =>
@@ -1037,9 +944,7 @@ function CreatePostModal({
                   }
                   className="mt-2 mr-2 inline-flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-50"
                 >
-                  <BarChart3
-                    size={19}
-                  />
+                  <BarChart3 size={19} />
 
                   Poll
                 </button>
@@ -1048,9 +953,7 @@ function CreatePostModal({
 
                 <button
                   type="button"
-                  disabled={
-                    isUploading
-                  }
+                  disabled={isUploading}
                   onClick={() => {
                     setPostType("job");
                     setShowJob(true);
@@ -1068,28 +971,20 @@ function CreatePostModal({
 
                 <button
                   type="button"
-                  disabled={
-                    isUploading
-                  }
+                  disabled={isUploading}
                   onClick={() => {
-                    setPostType(
-                      "event"
-                    );
+                    setPostType("event");
                     setShowEvent(true);
                   }}
                   className="mt-2 inline-flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-50"
                 >
-                  <CalendarDays
-                    size={19}
-                  />
+                  <CalendarDays size={19} />
 
                   Event
                 </button>
               </div>
 
-              {/* ================================= */}
               {/* MEDIA PREVIEW */}
-              {/* ================================= */}
 
               {media.length > 0 && (
                 <div className="mt-4">
@@ -1099,123 +994,99 @@ function CreatePostModal({
                     </p>
 
                     <p className="text-xs text-slate-400">
-                      {media.length}{" "}
-                      file
-                      {media.length >
-                      1
+                      {media.length} file
+                      {media.length > 1
                         ? "s"
                         : ""}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {media.map(
-                      (item) => (
-                        <div
-                          key={
-                            item.id
-                          }
-                          className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
-                        >
-                          {/* IMAGE */}
+                    {media.map((item) => (
+                      <div
+                        key={item.id}
+                        className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+                      >
+                        {/* IMAGE */}
 
-                          {item.type ===
-                            "image" && (
-                            <img
-                              src={
-                                item.url
-                              }
-                              alt={
-                                item.name
-                              }
-                              className="h-52 w-full object-cover"
-                            />
-                          )}
+                        {item.type ===
+                          "image" && (
+                          <img
+                            src={item.url}
+                            alt={item.name}
+                            className="h-52 w-full object-cover"
+                          />
+                        )}
 
-                          {/* VIDEO */}
+                        {/* VIDEO */}
 
-                          {item.type ===
-                            "video" && (
-                            <video
-                              src={
-                                item.url
-                              }
+                        {item.type ===
+                          "video" && (
+                          <video
+                            src={item.url}
+                            controls
+                            className="h-52 w-full object-cover"
+                          />
+                        )}
+
+                        {/* AUDIO */}
+
+                        {item.type ===
+                          "audio" && (
+                          <div className="flex h-32 items-center justify-center p-4">
+                            <audio
+                              src={item.url}
                               controls
-                              className="h-52 w-full object-cover"
+                              className="w-full"
                             />
-                          )}
+                          </div>
+                        )}
 
-                          {/* AUDIO */}
+                        {/* DOCUMENT */}
 
-                          {item.type ===
-                            "audio" && (
-                            <div className="flex h-32 items-center justify-center p-4">
-                              <audio
-                                src={
-                                  item.url
-                                }
-                                controls
-                                className="w-full"
+                        {item.type ===
+                          "document" && (
+                          <div className="flex h-32 items-center gap-3 p-5">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                              <FileText
+                                size={24}
                               />
                             </div>
-                          )}
 
-                          {/* DOCUMENT */}
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-bold text-slate-800">
+                                {item.name}
+                              </p>
 
-                          {item.type ===
-                            "document" && (
-                            <div className="flex h-32 items-center gap-3 p-5">
-                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
-                                <FileText
-                                  size={
-                                    24
-                                  }
-                                />
-                              </div>
-
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-bold text-slate-800">
-                                  {
-                                    item.name
-                                  }
-                                </p>
-
-                                <p className="mt-1 text-xs text-slate-500">
-                                  Document
-                                  attachment
-                                </p>
-                              </div>
+                              <p className="mt-1 text-xs text-slate-500">
+                                Document
+                                attachment
+                              </p>
                             </div>
-                          )}
+                          </div>
+                        )}
 
-                          {/* REMOVE */}
+                        {/* REMOVE */}
 
-                          <button
-                            type="button"
-                            disabled={
-                              isUploading
-                            }
-                            onClick={() =>
-                              removeMedia(
-                                item.id
-                              )
-                            }
-                            className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/70 text-white backdrop-blur transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            <X
-                              size={15}
-                            />
-                          </button>
-                        </div>
-                      )
-                    )}
+                        <button
+                          type="button"
+                          disabled={isUploading}
+                          onClick={() =>
+                            removeMedia(
+                              item.id
+                            )
+                          }
+                          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/70 text-white backdrop-blur transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <X size={15} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
-              {/* ================================= */}
               {/* LINK */}
-              {/* ================================= */}
 
               {showLink && (
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1235,22 +1106,17 @@ function CreatePostModal({
                     value={link}
                     onChange={(event) =>
                       setLink(
-                        event.target
-                          .value
+                        event.target.value
                       )
                     }
-                    disabled={
-                      isUploading
-                    }
+                    disabled={isUploading}
                     placeholder="https://example.com"
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
                   />
                 </div>
               )}
 
-              {/* ================================= */}
               {/* POLL */}
-              {/* ================================= */}
 
               {showPoll && (
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1267,18 +1133,13 @@ function CreatePostModal({
 
                   <input
                     type="text"
-                    value={
-                      pollQuestion
-                    }
+                    value={pollQuestion}
                     onChange={(event) =>
                       setPollQuestion(
-                        event.target
-                          .value
+                        event.target.value
                       )
                     }
-                    disabled={
-                      isUploading
-                    }
+                    disabled={isUploading}
                     placeholder="Ask your community a question..."
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
                   />
@@ -1290,23 +1151,18 @@ function CreatePostModal({
                         index
                       ) => (
                         <div
-                          key={
-                            index
-                          }
+                          key={index}
                           className="flex gap-2"
                         >
                           <input
                             type="text"
-                            value={
-                              option
-                            }
+                            value={option}
                             onChange={(
                               event
                             ) =>
                               updatePollOption(
                                 index,
-                                event
-                                  .target
+                                event.target
                                   .value
                               )
                             }
@@ -1314,8 +1170,7 @@ function CreatePostModal({
                               isUploading
                             }
                             placeholder={`Option ${
-                              index +
-                              1
+                              index + 1
                             }`}
                             className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
                           />
@@ -1335,9 +1190,7 @@ function CreatePostModal({
                               className="rounded-xl px-3 text-slate-400 hover:bg-white hover:text-red-500"
                             >
                               <X
-                                size={
-                                  17
-                                }
+                                size={17}
                               />
                             </button>
                           )}
@@ -1350,17 +1203,13 @@ function CreatePostModal({
                     4 && (
                     <button
                       type="button"
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       onClick={
                         addPollOption
                       }
                       className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600"
                     >
-                      <Plus
-                        size={16}
-                      />
+                      <Plus size={16} />
 
                       Add option
                     </button>
@@ -1368,9 +1217,7 @@ function CreatePostModal({
                 </div>
               )}
 
-              {/* ================================= */}
               {/* JOB */}
-              {/* ================================= */}
 
               {showJob && (
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1387,19 +1234,14 @@ function CreatePostModal({
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <input
-                      value={
-                        jobData.title
-                      }
+                      value={jobData.title}
                       onChange={(event) =>
                         updateJob(
                           "title",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Job title"
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
                     />
@@ -1411,13 +1253,10 @@ function CreatePostModal({
                       onChange={(event) =>
                         updateJob(
                           "company",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Company"
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
                     />
@@ -1429,13 +1268,10 @@ function CreatePostModal({
                       onChange={(event) =>
                         updateJob(
                           "location",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Location"
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
                     />
@@ -1447,13 +1283,10 @@ function CreatePostModal({
                       onChange={(event) =>
                         updateJob(
                           "experience",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Experience e.g. Fresher"
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
                     />
@@ -1465,13 +1298,10 @@ function CreatePostModal({
                       onChange={(event) =>
                         updateJob(
                           "description",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Job description and requirements..."
                       rows={4}
                       className="resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400 sm:col-span-2"
@@ -1480,9 +1310,7 @@ function CreatePostModal({
                 </div>
               )}
 
-              {/* ================================= */}
               {/* EVENT */}
-              {/* ================================= */}
 
               {showEvent && (
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1505,32 +1333,24 @@ function CreatePostModal({
                       onChange={(event) =>
                         updateEvent(
                           "title",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Event title"
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
                     />
 
                     <input
                       type="date"
-                      value={
-                        eventData.date
-                      }
+                      value={eventData.date}
                       onChange={(event) =>
                         updateEvent(
                           "date",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
                     />
 
@@ -1541,13 +1361,10 @@ function CreatePostModal({
                       onChange={(event) =>
                         updateEvent(
                           "location",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Location / Online"
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400 sm:col-span-2"
                     />
@@ -1559,13 +1376,10 @@ function CreatePostModal({
                       onChange={(event) =>
                         updateEvent(
                           "description",
-                          event.target
-                            .value
+                          event.target.value
                         )
                       }
-                      disabled={
-                        isUploading
-                      }
+                      disabled={isUploading}
                       placeholder="Event description..."
                       rows={4}
                       className="resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400 sm:col-span-2"
@@ -1574,9 +1388,7 @@ function CreatePostModal({
                 </div>
               )}
 
-              {/* ================================= */}
               {/* TIP */}
-              {/* ================================= */}
 
               <div className="mt-4 flex gap-3 rounded-2xl bg-indigo-50 p-4">
                 <Sparkles
@@ -1598,17 +1410,13 @@ function CreatePostModal({
               </div>
             </div>
 
-            {/* ================================= */}
             {/* FOOTER */}
-            {/* ================================= */}
 
             <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-end sm:p-5">
               <button
                 type="button"
                 onClick={handleClose}
-                disabled={
-                  isUploading
-                }
+                disabled={isUploading}
                 className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
                 Cancel
@@ -1616,12 +1424,8 @@ function CreatePostModal({
 
               <button
                 type="button"
-                onClick={
-                  handleSubmit
-                }
-                disabled={
-                  isPostDisabled
-                }
+                onClick={handleSubmit}
+                disabled={isPostDisabled}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
                 {isUploading ? (

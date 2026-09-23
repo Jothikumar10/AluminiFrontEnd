@@ -12,18 +12,17 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 
   headers: {
-    "Content-Type": "application/json",
     Accept: "application/json",
   },
 
-  timeout: 15000,
+  // 10 minutes
+  // Useful for large video uploads up to 500 MB.
+  timeout: 600000,
 });
 
 /*
 |--------------------------------------------------------------------------
 | Request Interceptor
-|--------------------------------------------------------------------------
-| Automatically attaches the JWT token to protected API requests.
 |--------------------------------------------------------------------------
 */
 
@@ -31,16 +30,6 @@ api.interceptors.request.use(
   (config) => {
     try {
       const token = localStorage.getItem("token");
-
-      /*
-      |--------------------------------------------------------------------------
-      | Make sure headers exist
-      |--------------------------------------------------------------------------
-      */
-
-      if (!config.headers) {
-        config.headers = {};
-      }
 
       /*
       |--------------------------------------------------------------------------
@@ -54,9 +43,28 @@ api.interceptors.request.use(
 
       /*
       |--------------------------------------------------------------------------
-      | Debug Information
+      | Content-Type Handling
       |--------------------------------------------------------------------------
-      | Do not print the actual token for security.
+      |
+      | JSON requests:
+      |     application/json
+      |
+      | FormData requests:
+      |     Browser/Axios automatically creates
+      |     multipart/form-data with the correct boundary.
+      |
+      |--------------------------------------------------------------------------
+      */
+
+      if (config.data instanceof FormData) {
+        delete config.headers["Content-Type"];
+      } else {
+        config.headers["Content-Type"] = "application/json";
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Development Debugging
       |--------------------------------------------------------------------------
       */
 
@@ -65,16 +73,26 @@ api.interceptors.request.use(
           `[API Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
           token ? "JWT attached" : "No JWT"
         );
+
+        if (config.data instanceof FormData) {
+          console.log("[API Request] Multipart/FormData request");
+        }
       }
     } catch (error) {
-      console.error("Error reading authentication token:", error);
+      console.error(
+        "Error reading authentication token:",
+        error
+      );
     }
 
     return config;
   },
 
   (error) => {
-    console.error("Request interceptor error:", error);
+    console.error(
+      "Request interceptor error:",
+      error
+    );
 
     return Promise.reject(error);
   }
@@ -84,8 +102,6 @@ api.interceptors.request.use(
 |--------------------------------------------------------------------------
 | Response Interceptor
 |--------------------------------------------------------------------------
-| Handles common API errors globally.
-|--------------------------------------------------------------------------
 */
 
 api.interceptors.response.use(
@@ -94,6 +110,24 @@ api.interceptors.response.use(
   },
 
   (error) => {
+    /*
+    |--------------------------------------------------------------------------
+    | Timeout
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      error.code === "ECONNABORTED" ||
+      error.code === "ETIMEDOUT"
+    ) {
+      console.error(
+        "Request timed out:",
+        error.message
+      );
+
+      return Promise.reject(error);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | No Response From Server
@@ -118,28 +152,48 @@ api.interceptors.response.use(
 
     /*
     |--------------------------------------------------------------------------
+    | 400 Bad Request
+    |--------------------------------------------------------------------------
+    */
+
+    if (status === 400) {
+      console.error(
+        "Bad request:",
+        message
+      );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | 401 Unauthorized
     |--------------------------------------------------------------------------
     */
 
     if (status === 401) {
-      console.warn("Authentication failed:", message);
+      console.warn(
+        "Authentication failed:",
+        message
+      );
 
-      const lowerMessage = String(message).toLowerCase();
-
-      /*
-      |--------------------------------------------------------------------------
-      | Remove authentication data only when token is actually invalid.
-      |--------------------------------------------------------------------------
-      */
+      const lowerMessage = String(
+        message
+      ).toLowerCase();
 
       const isInvalidToken =
         lowerMessage.includes("expired") ||
-        lowerMessage.includes("invalid authentication token") ||
+        lowerMessage.includes(
+          "invalid authentication token"
+        ) ||
         lowerMessage.includes("invalid token") ||
-        lowerMessage.includes("token is invalid") ||
-        lowerMessage.includes("authentication required") ||
-        lowerMessage.includes("authentication token is missing");
+        lowerMessage.includes(
+          "token is invalid"
+        ) ||
+        lowerMessage.includes(
+          "authentication required"
+        ) ||
+        lowerMessage.includes(
+          "authentication token is missing"
+        );
 
       if (isInvalidToken) {
         localStorage.removeItem("token");
@@ -154,7 +208,10 @@ api.interceptors.response.use(
     */
 
     if (status === 403) {
-      console.warn("Access forbidden:", message);
+      console.warn(
+        "Access forbidden:",
+        message
+      );
     }
 
     /*
@@ -164,17 +221,36 @@ api.interceptors.response.use(
     */
 
     if (status === 404) {
-      console.warn("API endpoint not found:", error.config?.url);
+      console.warn(
+        "API endpoint not found:",
+        error.config?.url
+      );
     }
 
     /*
     |--------------------------------------------------------------------------
-    | 500 Server Error
+    | 500+ Server Error
     |--------------------------------------------------------------------------
     */
 
     if (status >= 500) {
-      console.error("Backend server error:", message);
+      console.error(
+        "Backend server error:",
+        message
+      );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Backend Response
+    |--------------------------------------------------------------------------
+    */
+
+    if (import.meta.env.DEV) {
+      console.error(
+        "Backend response:",
+        error.response?.data
+      );
     }
 
     return Promise.reject(error);
@@ -183,8 +259,60 @@ api.interceptors.response.use(
 
 /*
 |--------------------------------------------------------------------------
-| Export API Instance
+| Export
 |--------------------------------------------------------------------------
 */
 
 export default api;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
