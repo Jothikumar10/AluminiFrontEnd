@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { motion } from "framer-motion";
 import {
   Bell,
@@ -16,53 +21,147 @@ import {
   Megaphone,
   Info,
   Handshake,
+  FileText,
+  UserCheck,
+  UserRoundPlus,
   X,
 } from "lucide-react";
 
 import api from "../../api/axios";
 
+/*
+|--------------------------------------------------------------------------
+| Notification Icons
+|--------------------------------------------------------------------------
+*/
+
 const notificationIcons = {
   like: Heart,
+
   comment: MessageCircle,
+
   comment_like: MessageSquare,
-  connection_request: UserPlus,
-  connection_accepted: Users,
+
+  follow: UserPlus,
+
+  follower: UserPlus,
+
+  follow_request: UserRoundPlus,
+
+  connection_request: UserRoundPlus,
+
+  connection_accepted: UserCheck,
+
+  connection: Handshake,
+
+  post: FileText,
+
+  new_post: FileText,
+
   job: BriefcaseBusiness,
+
   application: BriefcaseBusiness,
+
   mentorship: GraduationCap,
+
   event: CalendarDays,
+
   announcement: Megaphone,
+
   message: MessageCircle,
+
   system: Info,
 };
 
+/*
+|--------------------------------------------------------------------------
+| Notification Icon Styles
+|--------------------------------------------------------------------------
+*/
+
 const notificationIconStyles = {
   like: "bg-red-50 text-red-500",
+
   comment: "bg-blue-50 text-blue-600",
+
   comment_like: "bg-purple-50 text-purple-600",
-  connection_request: "bg-indigo-50 text-indigo-600",
-  connection_accepted: "bg-green-50 text-green-600",
+
+  follow: "bg-indigo-50 text-indigo-600",
+
+  follower: "bg-indigo-50 text-indigo-600",
+
+  follow_request: "bg-violet-50 text-violet-600",
+
+  connection_request:
+    "bg-violet-50 text-violet-600",
+
+  connection_accepted:
+    "bg-green-50 text-green-600",
+
+  connection:
+    "bg-green-50 text-green-600",
+
+  post: "bg-cyan-50 text-cyan-600",
+
+  new_post: "bg-cyan-50 text-cyan-600",
+
   job: "bg-orange-50 text-orange-600",
+
   application: "bg-cyan-50 text-cyan-600",
+
   mentorship: "bg-pink-50 text-pink-600",
+
   event: "bg-amber-50 text-amber-600",
-  announcement: "bg-violet-50 text-violet-600",
+
+  announcement:
+    "bg-violet-50 text-violet-600",
+
   message: "bg-sky-50 text-sky-600",
+
   system: "bg-slate-100 text-slate-600",
 };
+
+/*
+|--------------------------------------------------------------------------
+| Helpers
+|--------------------------------------------------------------------------
+*/
 
 function getInitials(name) {
   if (!name) {
     return "AC";
   }
 
-  return name
+  return String(name)
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
+    .map((part) =>
+      part.charAt(0).toUpperCase()
+    )
     .join("");
 }
+
+/*
+|--------------------------------------------------------------------------
+| Get Notification Type
+|--------------------------------------------------------------------------
+*/
+
+function getNotificationType(notification) {
+  return (
+    notification?.type ||
+    notification?.notificationType ||
+    notification?.category ||
+    "system"
+  );
+}
+
+/*
+|--------------------------------------------------------------------------
+| Format Relative Time
+|--------------------------------------------------------------------------
+*/
 
 function formatRelativeTime(dateValue) {
   if (!dateValue) {
@@ -76,12 +175,25 @@ function formatRelativeTime(dateValue) {
   }
 
   const now = new Date();
-  const difference = now.getTime() - date.getTime();
 
-  const seconds = Math.floor(difference / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+  const difference =
+    now.getTime() - date.getTime();
+
+  const seconds = Math.floor(
+    difference / 1000
+  );
+
+  const minutes = Math.floor(
+    seconds / 60
+  );
+
+  const hours = Math.floor(
+    minutes / 60
+  );
+
+  const days = Math.floor(
+    hours / 24
+  );
 
   if (seconds < 60) {
     return "Just now";
@@ -99,16 +211,34 @@ function formatRelativeTime(dateValue) {
     return `${days}d ago`;
   }
 
-  return date.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return date.toLocaleDateString(
+    "en-IN",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }
+  );
 }
 
+/*
+|--------------------------------------------------------------------------
+| Notification Icon
+|--------------------------------------------------------------------------
+*/
+
 function getNotificationIcon(type) {
-  return notificationIcons[type] || Bell;
+  return (
+    notificationIcons[type] ||
+    Bell
+  );
 }
+
+/*
+|--------------------------------------------------------------------------
+| Notification Icon Style
+|--------------------------------------------------------------------------
+*/
 
 function getNotificationIconStyle(type) {
   return (
@@ -117,38 +247,139 @@ function getNotificationIconStyle(type) {
   );
 }
 
+/*
+|--------------------------------------------------------------------------
+| Sender
+|--------------------------------------------------------------------------
+*/
+
+function getSender(notification) {
+  return (
+    notification?.sender ||
+    notification?.fromUser ||
+    notification?.actor ||
+    notification?.user ||
+    null
+  );
+}
+
+/*
+|--------------------------------------------------------------------------
+| Sender Name
+|--------------------------------------------------------------------------
+*/
+
 function getSenderName(notification) {
-  if (notification?.sender?.name) {
-    return notification.sender.name;
-  }
+  const sender =
+    getSender(notification);
 
-  return "AlumniConnect";
+  return (
+    sender?.name ||
+    sender?.fullName ||
+    notification?.senderName ||
+    "AlumniConnect"
+  );
 }
 
-function getSenderInitials(notification) {
-  if (notification?.sender?.name) {
-    return getInitials(notification.sender.name);
-  }
+/*
+|--------------------------------------------------------------------------
+| Sender Image
+|--------------------------------------------------------------------------
+*/
 
-  return "AC";
+function getSenderImage(notification) {
+  const sender =
+    getSender(notification);
+
+  return (
+    sender?.profileImage ||
+    sender?.avatar ||
+    sender?.photo ||
+    sender?.profilePhoto ||
+    ""
+  );
 }
 
-function getNotificationMessage(notification) {
+/*
+|--------------------------------------------------------------------------
+| Notification Message
+|--------------------------------------------------------------------------
+*/
+
+function getNotificationMessage(
+  notification
+) {
   if (notification?.message) {
     return notification.message;
   }
 
-  return "You have a new notification.";
+  const type =
+    getNotificationType(
+      notification
+    );
+
+  const senderName =
+    getSenderName(notification);
+
+  switch (type) {
+    case "follow_request":
+    case "connection_request":
+      return `${senderName} sent you a follow request.`;
+
+    case "follow":
+    case "follower":
+      return `${senderName} started following you.`;
+
+    case "connection_accepted":
+      return `${senderName} accepted your connection request.`;
+
+    case "like":
+      return `${senderName} liked your post.`;
+
+    case "comment":
+      return `${senderName} commented on your post.`;
+
+    case "comment_like":
+      return `${senderName} liked your comment.`;
+
+    case "post":
+    case "new_post":
+      return `${senderName} created a new post.`;
+
+    case "job":
+      return `${senderName} shared a job opportunity.`;
+
+    case "event":
+      return `${senderName} shared an event.`;
+
+    case "message":
+      return `${senderName} sent you a message.`;
+
+    default:
+      return "You have a new notification.";
+  }
 }
 
-function NotificationAvatar({ notification }) {
-  const sender = notification?.sender;
+/*
+|--------------------------------------------------------------------------
+| Notification Avatar
+|--------------------------------------------------------------------------
+*/
 
-  if (sender?.profileImage) {
+function NotificationAvatar({
+  notification,
+}) {
+  const image =
+    getSenderImage(notification);
+
+  const name =
+    getSenderName(notification);
+
+  if (image) {
     return (
       <img
-        src={sender.profileImage}
-        alt={sender.name || "User"}
+        src={image}
+        alt={name}
         className="h-11 w-11 rounded-full object-cover"
       />
     );
@@ -156,36 +387,67 @@ function NotificationAvatar({ notification }) {
 
   return (
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white">
-      {getSenderInitials(notification)}
+      {getInitials(name)}
     </div>
   );
 }
+
+/*
+|--------------------------------------------------------------------------
+| Notification Item
+|--------------------------------------------------------------------------
+*/
 
 function NotificationItem({
   notification,
   onMarkAsRead,
   markingId,
 }) {
-  const Icon = getNotificationIcon(notification?.type);
+  const type =
+    getNotificationType(
+      notification
+    );
 
-  const iconStyle = getNotificationIconStyle(
-    notification?.type
-  );
+  const Icon =
+    getNotificationIcon(type);
 
-  const isRead = Boolean(notification?.isRead);
+  const iconStyle =
+    getNotificationIconStyle(
+      type
+    );
+
+  const isRead =
+    Boolean(notification?.isRead);
+
+  const notificationId =
+    notification?._id ||
+    notification?.id;
 
   const handleClick = () => {
-    if (!isRead && notification?._id) {
-      onMarkAsRead(notification._id);
+    if (
+      !isRead &&
+      notificationId
+    ) {
+      onMarkAsRead(
+        notificationId
+      );
     }
   };
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
+      initial={{
+        opacity: 0,
+        y: 8,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.2,
+      }}
       onClick={handleClick}
       className={`group relative flex gap-4 border-b border-slate-100 px-4 py-4 transition sm:px-6 ${
         !isRead
@@ -193,19 +455,32 @@ function NotificationItem({
           : "bg-white hover:bg-slate-50"
       }`}
     >
+      {/* Unread indicator */}
+
       {!isRead && (
         <span className="absolute left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-indigo-600 sm:left-2" />
       )}
 
+      {/* Avatar */}
+
       <div className="relative shrink-0">
-        <NotificationAvatar notification={notification} />
+        <NotificationAvatar
+          notification={
+            notification
+          }
+        />
 
         <div
           className={`absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white ${iconStyle}`}
         >
-          <Icon size={12} strokeWidth={2.5} />
+          <Icon
+            size={12}
+            strokeWidth={2.5}
+          />
         </div>
       </div>
+
+      {/* Content */}
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
@@ -217,47 +492,76 @@ function NotificationItem({
                   : "font-semibold text-slate-800"
               }`}
             >
-              {notification?.title || "Notification"}
+              {notification?.title ||
+                getSenderName(
+                  notification
+                )}
             </h3>
 
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              {getNotificationMessage(notification)}
+              {getNotificationMessage(
+                notification
+              )}
             </p>
           </div>
 
           <span className="shrink-0 text-xs text-slate-400">
-            {formatRelativeTime(notification?.createdAt)}
+            {formatRelativeTime(
+              notification?.createdAt ||
+                notification?.created_at
+            )}
           </span>
         </div>
 
-        {notification?.sender?.role && (
+        {/* Sender role */}
+
+        {getSender(notification)
+          ?.role && (
           <div className="mt-2 text-xs font-medium capitalize text-slate-400">
-            {notification.sender.role}
+            {getSender(notification).role}
           </div>
         )}
 
+        {/* Read status */}
+
         {!isRead && (
           <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-indigo-600">
-            {markingId === notification?._id ? (
+            {markingId ===
+            notificationId ? (
               <>
                 <RefreshCw
                   size={13}
                   className="animate-spin"
                 />
+
                 Marking as read...
               </>
             ) : (
               <>
                 <Check size={13} />
+
                 Click to mark as read
               </>
             )}
+          </div>
+        )}
+
+        {isRead && (
+          <div className="mt-2 flex items-center gap-1 text-xs text-slate-400">
+            <CheckCheck size={13} />
+            Read
           </div>
         )}
       </div>
     </motion.div>
   );
 }
+
+/*
+|--------------------------------------------------------------------------
+| Empty State
+|--------------------------------------------------------------------------
+*/
 
 function EmptyNotifications() {
   return (
@@ -275,18 +579,27 @@ function EmptyNotifications() {
       </h2>
 
       <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-        When someone likes or comments on your post, sends
-        a connection request, or interacts with you, you will
-        see the notification here.
+        When someone follows you, sends a
+        follow request, likes or comments on
+        your post, or creates a new post,
+        you will see the notification here.
       </p>
     </div>
   );
 }
 
+/*
+|--------------------------------------------------------------------------
+| Loading
+|--------------------------------------------------------------------------
+*/
+
 function LoadingNotifications() {
   return (
-    <div className="space-y-0">
-      {Array.from({ length: 5 }).map((_, index) => (
+    <div>
+      {Array.from({
+        length: 5,
+      }).map((_, index) => (
         <div
           key={index}
           className="flex gap-4 border-b border-slate-100 px-4 py-5 sm:px-6"
@@ -295,7 +608,9 @@ function LoadingNotifications() {
 
           <div className="flex-1 space-y-3">
             <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
+
             <div className="h-3 w-full max-w-md animate-pulse rounded bg-slate-200" />
+
             <div className="h-3 w-20 animate-pulse rounded bg-slate-200" />
           </div>
         </div>
@@ -304,11 +619,23 @@ function LoadingNotifications() {
   );
 }
 
-function ErrorState({ message, onRetry }) {
+/*
+|--------------------------------------------------------------------------
+| Error
+|--------------------------------------------------------------------------
+*/
+
+function ErrorState({
+  message,
+  onRetry,
+}) {
   return (
     <div className="flex min-h-[360px] flex-col items-center justify-center px-6 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-        <X size={30} className="text-red-500" />
+        <X
+          size={30}
+          className="text-red-500"
+        />
       </div>
 
       <h2 className="mt-4 text-lg font-bold text-slate-900">
@@ -332,157 +659,331 @@ function ErrorState({ message, onRetry }) {
   );
 }
 
+/*
+|--------------------------------------------------------------------------
+| Main Component
+|--------------------------------------------------------------------------
+*/
+
 export default function Notifications() {
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [
+    notifications,
+    setNotifications,
+  ] = useState([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [
+    unreadCount,
+    setUnreadCount,
+  ] = useState(0);
 
-  const [markingId, setMarkingId] = useState(null);
-  const [markingAll, setMarkingAll] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const loadNotifications = useCallback(
-    async (showRefreshState = false) => {
-      try {
-        if (showRefreshState) {
-          setRefreshing(true);
-        } else {
-          setLoading(true);
-        }
+  const [
+    error,
+    setError,
+  ] = useState("");
 
-        setError("");
+  const [
+    markingId,
+    setMarkingId,
+  ] = useState(null);
 
-        const [notificationsResponse, unreadResponse] =
-          await Promise.all([
-            api.get("/notifications"),
-            api.get("/notifications/unread-count"),
+  const [
+    markingAll,
+    setMarkingAll,
+  ] = useState(false);
+
+  const [
+    refreshing,
+    setRefreshing,
+  ] = useState(false);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Load Notifications
+  |--------------------------------------------------------------------------
+  */
+
+  const loadNotifications =
+    useCallback(
+      async (
+        showRefreshState = false
+      ) => {
+        try {
+          if (showRefreshState) {
+            setRefreshing(true);
+          } else {
+            setLoading(true);
+          }
+
+          setError("");
+
+          const [
+            notificationsResponse,
+            unreadResponse,
+          ] = await Promise.all([
+            api.get(
+              "/notifications"
+            ),
+
+            api.get(
+              "/notifications/unread-count"
+            ),
           ]);
 
-        const notificationData =
-          notificationsResponse?.data?.data;
+          /*
+          |--------------------------------------------------------------------------
+          | Notifications Response
+          |--------------------------------------------------------------------------
+          */
 
-        const countData = unreadResponse?.data?.data?.count;
+          const responseData =
+            notificationsResponse?.data;
 
-        setNotifications(
-          Array.isArray(notificationData)
-            ? notificationData
-            : []
-        );
+          const notificationList =
+            responseData?.notifications ||
+            responseData?.data?.notifications ||
+            responseData?.data ||
+            [];
 
-        setUnreadCount(
-          typeof countData === "number" ? countData : 0
-        );
-      } catch (requestError) {
-        console.error(
-          "Load notifications error:",
-          requestError
-        );
+          /*
+          |--------------------------------------------------------------------------
+          | Unread Response
+          |--------------------------------------------------------------------------
+          */
 
-        setError(
-          requestError?.response?.data?.message ||
-            "Failed to load notifications."
-        );
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    []
-  );
+          const unreadData =
+            unreadResponse?.data;
+
+          const count =
+            unreadData?.count ??
+            unreadData?.data?.count ??
+            unreadData?.unreadCount ??
+            unreadData?.data?.unreadCount ??
+            0;
+
+          setNotifications(
+            Array.isArray(
+              notificationList
+            )
+              ? notificationList
+              : []
+          );
+
+          setUnreadCount(
+            Number.isFinite(
+              Number(count)
+            )
+              ? Number(count)
+              : 0
+          );
+        } catch (requestError) {
+          console.error(
+            "Load notifications error:",
+            requestError
+          );
+
+          console.error(
+            "Backend response:",
+            requestError?.response?.data
+          );
+
+          setError(
+            requestError?.response
+              ?.data?.message ||
+              "Failed to load notifications."
+          );
+        } finally {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      },
+      []
+    );
+
+  /*
+  |--------------------------------------------------------------------------
+  | Initial Load
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
     loadNotifications();
-  }, [loadNotifications]);
+  }, [
+    loadNotifications,
+  ]);
 
-  const handleMarkAsRead = async (notificationId) => {
-    if (!notificationId || markingId) {
-      return;
-    }
+  /*
+  |--------------------------------------------------------------------------
+  | Mark One Notification As Read
+  |--------------------------------------------------------------------------
+  */
 
-    try {
-      setMarkingId(notificationId);
+  const handleMarkAsRead =
+    async (
+      notificationId
+    ) => {
+      if (
+        !notificationId ||
+        markingId
+      ) {
+        return;
+      }
 
-      await api.patch(
-        `/notifications/${notificationId}/read`
-      );
+      try {
+        setMarkingId(
+          notificationId
+        );
 
-      setNotifications((currentNotifications) =>
-        currentNotifications.map((notification) =>
-          notification?._id === notificationId
-            ? {
+        await api.patch(
+          `/notifications/${notificationId}/read`
+        );
+
+        setNotifications(
+          (
+            currentNotifications
+          ) =>
+            currentNotifications.map(
+              (
+                notification
+              ) =>
+                String(
+                  notification?._id ||
+                    notification?.id
+                ) ===
+                String(
+                  notificationId
+                )
+                  ? {
+                      ...notification,
+                      isRead: true,
+                    }
+                  : notification
+            )
+        );
+
+        setUnreadCount(
+          (currentCount) =>
+            Math.max(
+              0,
+              currentCount - 1
+            )
+        );
+      } catch (requestError) {
+        console.error(
+          "Mark notification as read error:",
+          requestError
+        );
+      } finally {
+        setMarkingId(null);
+      }
+    };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Mark All As Read
+  |--------------------------------------------------------------------------
+  */
+
+  const handleMarkAllAsRead =
+    async () => {
+      if (
+        markingAll ||
+        unreadCount === 0
+      ) {
+        return;
+      }
+
+      try {
+        setMarkingAll(true);
+
+        await api.patch(
+          "/notifications/read-all"
+        );
+
+        setNotifications(
+          (
+            currentNotifications
+          ) =>
+            currentNotifications.map(
+              (
+                notification
+              ) => ({
                 ...notification,
                 isRead: true,
-              }
-            : notification
-        )
-      );
+              })
+            )
+        );
 
-      setUnreadCount((currentCount) =>
-        Math.max(0, currentCount - 1)
-      );
-    } catch (requestError) {
-      console.error(
-        "Mark notification as read error:",
-        requestError
-      );
-    } finally {
-      setMarkingId(null);
-    }
-  };
+        setUnreadCount(0);
+      } catch (requestError) {
+        console.error(
+          "Mark all notifications as read error:",
+          requestError
+        );
+      } finally {
+        setMarkingAll(false);
+      }
+    };
 
-  const handleMarkAllAsRead = async () => {
-    if (markingAll || unreadCount === 0) {
-      return;
-    }
-
-    try {
-      setMarkingAll(true);
-
-      await api.patch("/notifications/read-all");
-
-      setNotifications((currentNotifications) =>
-        currentNotifications.map((notification) => ({
-          ...notification,
-          isRead: true,
-        }))
-      );
-
-      setUnreadCount(0);
-    } catch (requestError) {
-      console.error(
-        "Mark all notifications as read error:",
-        requestError
-      );
-    } finally {
-      setMarkingAll(false);
-    }
-  };
+  /*
+  |--------------------------------------------------------------------------
+  | Refresh
+  |--------------------------------------------------------------------------
+  */
 
   const handleRefresh = () => {
     loadNotifications(true);
   };
 
-  const unreadNotifications = useMemo(() => {
-    return notifications.filter(
-      (notification) => !notification?.isRead
-    );
-  }, [notifications]);
+  /*
+  |--------------------------------------------------------------------------
+  | Unread / Read
+  |--------------------------------------------------------------------------
+  */
 
-  const readNotifications = useMemo(() => {
-    return notifications.filter(
-      (notification) => notification?.isRead
-    );
-  }, [notifications]);
+  const unreadNotifications =
+    useMemo(() => {
+      return notifications.filter(
+        (notification) =>
+          !notification?.isRead
+      );
+    }, [notifications]);
+
+  const readNotifications =
+    useMemo(() => {
+      return notifications.filter(
+        (notification) =>
+          notification?.isRead
+      );
+    }, [notifications]);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Render
+  |--------------------------------------------------------------------------
+  */
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-slate-50 py-6 sm:py-8">
       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+
+        {/* ================================================================
+            Header
+        ================================================================ */}
+
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{
+            opacity: 0,
+            y: -10,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
           className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
@@ -506,23 +1007,36 @@ export default function Notifications() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleRefresh}
-              disabled={refreshing || loading}
+              onClick={
+                handleRefresh
+              }
+              disabled={
+                refreshing ||
+                loading
+              }
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCw
                 size={16}
                 className={
-                  refreshing ? "animate-spin" : ""
+                  refreshing
+                    ? "animate-spin"
+                    : ""
                 }
               />
+
               Refresh
             </button>
 
             <button
               type="button"
-              onClick={handleMarkAllAsRead}
-              disabled={markingAll || unreadCount === 0}
+              onClick={
+                handleMarkAllAsRead
+              }
+              disabled={
+                markingAll ||
+                unreadCount === 0
+              }
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               <CheckCheck size={16} />
@@ -534,11 +1048,22 @@ export default function Notifications() {
           </div>
         </motion.div>
 
-        {/* Stats */}
+        {/* ================================================================
+            Stats
+        ================================================================ */}
+
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
+          initial={{
+            opacity: 0,
+            y: 10,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          transition={{
+            delay: 0.05,
+          }}
           className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3"
         >
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -572,11 +1097,22 @@ export default function Notifications() {
           </div>
         </motion.div>
 
-        {/* Main notification card */}
+        {/* ================================================================
+            Notification Card
+        ================================================================ */}
+
         <motion.section
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={{
+            opacity: 0,
+            y: 15,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          transition={{
+            delay: 0.1,
+          }}
           className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
         >
           {loading ? (
@@ -584,14 +1120,21 @@ export default function Notifications() {
           ) : error ? (
             <ErrorState
               message={error}
-              onRetry={() => loadNotifications()}
+              onRetry={() =>
+                loadNotifications()
+              }
             />
-          ) : notifications.length === 0 ? (
+          ) : notifications.length ===
+            0 ? (
             <EmptyNotifications />
           ) : (
             <>
-              {/* Unread section */}
-              {unreadNotifications.length > 0 && (
+              {/* ==========================================================
+                  New Notifications
+              ========================================================== */}
+
+              {unreadNotifications.length >
+                0 && (
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:px-6">
                     <div className="flex items-center gap-2">
@@ -603,18 +1146,31 @@ export default function Notifications() {
                     </div>
 
                     <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700">
-                      {unreadNotifications.length}
+                      {
+                        unreadNotifications.length
+                      }
                     </span>
                   </div>
 
                   <div>
                     {unreadNotifications.map(
-                      (notification) => (
+                      (
+                        notification
+                      ) => (
                         <NotificationItem
-                          key={notification?._id}
-                          notification={notification}
-                          onMarkAsRead={handleMarkAsRead}
-                          markingId={markingId}
+                          key={
+                            notification?._id ||
+                            notification?.id
+                          }
+                          notification={
+                            notification
+                          }
+                          onMarkAsRead={
+                            handleMarkAsRead
+                          }
+                          markingId={
+                            markingId
+                          }
                         />
                       )
                     )}
@@ -622,10 +1178,15 @@ export default function Notifications() {
                 </div>
               )}
 
-              {/* Read section */}
-              {readNotifications.length > 0 && (
+              {/* ==========================================================
+                  Earlier Notifications
+              ========================================================== */}
+
+              {readNotifications.length >
+                0 && (
                 <div>
-                  {unreadNotifications.length > 0 && (
+                  {unreadNotifications.length >
+                    0 && (
                     <div className="border-t border-slate-200" />
                   )}
 
@@ -637,12 +1198,23 @@ export default function Notifications() {
 
                   <div>
                     {readNotifications.map(
-                      (notification) => (
+                      (
+                        notification
+                      ) => (
                         <NotificationItem
-                          key={notification?._id}
-                          notification={notification}
-                          onMarkAsRead={handleMarkAsRead}
-                          markingId={markingId}
+                          key={
+                            notification?._id ||
+                            notification?.id
+                          }
+                          notification={
+                            notification
+                          }
+                          onMarkAsRead={
+                            handleMarkAsRead
+                          }
+                          markingId={
+                            markingId
+                          }
                         />
                       )
                     )}

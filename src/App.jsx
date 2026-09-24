@@ -13,9 +13,11 @@ import Register from "./pages/auth/Register";
 
 import Notifications from "./pages/notifications/Notifications";
 
-import Profile from "./profile/Profile";
+import MyProfile from "./profile/MyProfile";
+import AlumniProfile from "./profile/AlumniProfile";
 import OtherProfile from "./profile/OtherProfile";
 
+import Messages from "./messages/Messages";
 import Users from "./users/Users";
 
 function App() {
@@ -25,39 +27,115 @@ function App() {
       <Navbar />
 
       <Routes>
-        {/* Public Pages */}
-        <Route path="/" element={<Home />} />
-        <Route path="/alumni" element={<Alumni />} />
-        <Route path="/jobs" element={<Jobs />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/community" element={<Community />} />
+        {/* =========================================================
+            PUBLIC PAGES
+        ========================================================= */}
 
-        {/* Authentication */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/"
+          element={<Home />}
+        />
 
-        {/* Notifications */}
+        <Route
+          path="/alumni"
+          element={<Alumni />}
+        />
+
+        <Route
+          path="/jobs"
+          element={<Jobs />}
+        />
+
+        <Route
+          path="/events"
+          element={<Events />}
+        />
+
+        <Route
+          path="/community"
+          element={<Community />}
+        />
+
+        {/* =========================================================
+            AUTHENTICATION
+        ========================================================= */}
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+        {/* =========================================================
+            NOTIFICATIONS
+        ========================================================= */}
+
         <Route
           path="/notifications"
           element={<Notifications />}
         />
 
-        {/* Users */}
+        {/* =========================================================
+            USERS
+        ========================================================= */}
+
         <Route
           path="/users"
           element={<Users />}
         />
 
-        {/* My Profile */}
+        {/* =========================================================
+            MY PROFILE
+
+            Student -> Profile.jsx
+            Alumni  -> AlumniProfile.jsx
+        ========================================================= */}
+
         <Route
           path="/profile"
-          element={<Profile />}
+          element={<MyProfile />}
         />
 
-        {/* Other User Profile */}
+        {/* =========================================================
+            SPECIFIC ALUMNI PROFILE
+
+            Example:
+            /alumni-profile/68xxxxxxxxxxxxxxxx
+        ========================================================= */}
+
+        <Route
+          path="/alumni-profile/:userId"
+          element={<AlumniProfile />}
+        />
+
+        {/* =========================================================
+            OTHER USER PROFILE
+
+            Example:
+            /profile/68xxxxxxxxxxxxxxxx
+        ========================================================= */}
+
         <Route
           path="/profile/:userId"
           element={<OtherProfile />}
+        />
+
+        {/* =========================================================
+            MESSAGES
+        ========================================================= */}
+
+        <Route
+          path="/messages"
+          element={<Messages />}
+        />
+
+        <Route
+          path="/messages/:userId"
+          element={<Messages />}
         />
       </Routes>
     </div>

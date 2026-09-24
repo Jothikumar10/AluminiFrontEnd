@@ -1,0 +1,15 @@
+{
+  "email": "arun.kumar@example.com",
+  "password": "Arun@12345"
+}
+
+///////////////////////////////////////////
+
+
+{
+  "email": "testuser@gmail.com",
+  "password": "Test@12345"
+}
+
+  "email": "priya.sharma.alumni@gmail.com",
+  "password": "Priya@123456",

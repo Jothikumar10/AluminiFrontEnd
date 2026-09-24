@@ -16,7 +16,7 @@ const api = axios.create({
   },
 
   // 10 minutes
-  // Useful for large video uploads up to 500 MB.
+  // Useful for large file/video uploads.
   timeout: 600000,
 });
 
@@ -29,11 +29,17 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     try {
+      /*
+      |--------------------------------------------------------------------------
+      | Get Authentication Token
+      |--------------------------------------------------------------------------
+      */
+
       const token = localStorage.getItem("token");
 
       /*
       |--------------------------------------------------------------------------
-      | Attach JWT
+      | Attach JWT Token
       |--------------------------------------------------------------------------
       */
 
@@ -46,12 +52,12 @@ api.interceptors.request.use(
       | Content-Type Handling
       |--------------------------------------------------------------------------
       |
-      | JSON requests:
-      |     application/json
+      | JSON:
+      | application/json
       |
-      | FormData requests:
-      |     Browser/Axios automatically creates
-      |     multipart/form-data with the correct boundary.
+      | FormData:
+      | Browser automatically sets multipart/form-data
+      | including the required boundary.
       |
       |--------------------------------------------------------------------------
       */
@@ -80,7 +86,7 @@ api.interceptors.request.use(
       }
     } catch (error) {
       console.error(
-        "Error reading authentication token:",
+        "Error reading authentication information:",
         error
       );
     }
@@ -112,7 +118,7 @@ api.interceptors.response.use(
   (error) => {
     /*
     |--------------------------------------------------------------------------
-    | Timeout
+    | Timeout Error
     |--------------------------------------------------------------------------
     */
 
@@ -130,7 +136,7 @@ api.interceptors.response.use(
 
     /*
     |--------------------------------------------------------------------------
-    | No Response From Server
+    | Network Error
     |--------------------------------------------------------------------------
     */
 
@@ -142,6 +148,12 @@ api.interceptors.response.use(
 
       return Promise.reject(error);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Response Information
+    |--------------------------------------------------------------------------
+    */
 
     const status = error.response.status;
 
@@ -181,23 +193,26 @@ api.interceptors.response.use(
 
       const isInvalidToken =
         lowerMessage.includes("expired") ||
-        lowerMessage.includes(
-          "invalid authentication token"
-        ) ||
+        lowerMessage.includes("invalid authentication token") ||
         lowerMessage.includes("invalid token") ||
-        lowerMessage.includes(
-          "token is invalid"
-        ) ||
-        lowerMessage.includes(
-          "authentication required"
-        ) ||
-        lowerMessage.includes(
-          "authentication token is missing"
-        );
+        lowerMessage.includes("token is invalid") ||
+        lowerMessage.includes("authentication required") ||
+        lowerMessage.includes("authentication token is missing");
 
       if (isInvalidToken) {
+        /*
+        |--------------------------------------------------------------------------
+        | Remove Invalid Authentication Data
+        |--------------------------------------------------------------------------
+        */
+
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("userId");
+
+        console.warn(
+          "Invalid authentication data removed from localStorage."
+        );
       }
     }
 
@@ -229,6 +244,32 @@ api.interceptors.response.use(
 
     /*
     |--------------------------------------------------------------------------
+    | 409 Conflict
+    |--------------------------------------------------------------------------
+    */
+
+    if (status === 409) {
+      console.warn(
+        "Conflict:",
+        message
+      );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 422 Validation Error
+    |--------------------------------------------------------------------------
+    */
+
+    if (status === 422) {
+      console.warn(
+        "Validation error:",
+        message
+      );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | 500+ Server Error
     |--------------------------------------------------------------------------
     */
@@ -242,7 +283,7 @@ api.interceptors.response.use(
 
     /*
     |--------------------------------------------------------------------------
-    | Backend Response
+    | Development Backend Response
     |--------------------------------------------------------------------------
     */
 
@@ -264,55 +305,3 @@ api.interceptors.response.use(
 */
 
 export default api;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

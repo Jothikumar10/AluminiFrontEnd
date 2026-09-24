@@ -70,18 +70,24 @@ const Login = () => {
 
       if (response.data?.success) {
         /*
-         * Save JWT token
-         *
-         * axios.js will automatically read this token
-         * and send:
-         *
-         * Authorization: Bearer <token>
+         * ---------------------------------------------------------
+         * SAVE JWT TOKEN
+         * ---------------------------------------------------------
          */
-        localStorage.setItem("token", response.data.token);
+
+        if (response.data.token) {
+          localStorage.setItem(
+            "token",
+            response.data.token
+          );
+        }
 
         /*
-         * Save logged-in user
+         * ---------------------------------------------------------
+         * SAVE LOGGED-IN USER
+         * ---------------------------------------------------------
          */
+
         if (response.data.user) {
           localStorage.setItem(
             "user",
@@ -89,13 +95,60 @@ const Login = () => {
           );
         }
 
-        setSuccess("Login successful!");
+        /*
+         * ---------------------------------------------------------
+         * GET USER ROLE
+         * ---------------------------------------------------------
+         */
+
+        const user = response.data.user;
+        const role = user?.role;
+
+        console.log("Logged-in user:", user);
+        console.log("User role:", role);
 
         /*
-         * Redirect to Community
+         * ---------------------------------------------------------
+         * SUCCESS MESSAGE
+         * ---------------------------------------------------------
          */
+
+        if (role === "alumni") {
+          setSuccess(
+            "Alumni login successful! Redirecting to your profile..."
+          );
+        } else if (role === "student") {
+          setSuccess(
+            "Student login successful! Redirecting to your profile..."
+          );
+        } else {
+          setSuccess(
+            "Login successful! Redirecting..."
+          );
+        }
+
+        /*
+         * ---------------------------------------------------------
+         * ROLE-BASED REDIRECT
+         * ---------------------------------------------------------
+         *
+         * Student  → /profile
+         *
+         * Alumni   → /alumni-profile/:userId
+         *
+         * Other    → /community
+         */
+
         setTimeout(() => {
-          navigate("/community");
+          if (role === "alumni" && user?._id) {
+            navigate(
+              `/alumni-profile/${user._id}`
+            );
+          } else if (role === "student") {
+            navigate("/profile");
+          } else {
+            navigate("/community");
+          }
         }, 700);
       } else {
         setError(
@@ -125,9 +178,12 @@ const Login = () => {
             {/* =========================================================
                 LEFT SIDE
             ========================================================= */}
+
             <div className="hidden bg-slate-900 p-10 text-white lg:flex lg:flex-col lg:justify-between">
               <div>
+
                 {/* Logo */}
+
                 <div className="mb-10 flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-xl font-bold text-slate-900">
                     AC
@@ -145,6 +201,7 @@ const Login = () => {
                 </div>
 
                 {/* Heading */}
+
                 <h2 className="max-w-md text-4xl font-bold leading-tight">
                   Welcome back to
                   <br />
@@ -158,6 +215,7 @@ const Login = () => {
               </div>
 
               {/* Features */}
+
               <div className="space-y-4">
                 <Feature
                   icon={<GraduationCap size={18} />}
@@ -179,10 +237,12 @@ const Login = () => {
             {/* =========================================================
                 RIGHT SIDE
             ========================================================= */}
+
             <div className="p-6 sm:p-10 lg:p-12">
               <div className="mx-auto max-w-md">
 
                 {/* Mobile Logo */}
+
                 <div className="mb-8 flex items-center gap-3 lg:hidden">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-sm font-bold text-white">
                     AC
@@ -200,6 +260,7 @@ const Login = () => {
                 </div>
 
                 {/* Heading */}
+
                 <div className="mb-8">
                   <h2 className="text-3xl font-bold text-slate-900">
                     Welcome back
@@ -211,6 +272,7 @@ const Login = () => {
                 </div>
 
                 {/* Error */}
+
                 {error && (
                   <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                     <AlertCircle
@@ -223,6 +285,7 @@ const Login = () => {
                 )}
 
                 {/* Success */}
+
                 {success && (
                   <div className="mb-5 flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
                     <CheckCircle2
@@ -235,11 +298,14 @@ const Login = () => {
                 )}
 
                 {/* Form */}
+
                 <form
                   onSubmit={handleSubmit}
                   className="space-y-5"
                 >
+
                   {/* Email */}
+
                   <div>
                     <label
                       htmlFor="email"
@@ -269,6 +335,7 @@ const Login = () => {
                   </div>
 
                   {/* Password */}
+
                   <div>
                     <div className="mb-2 flex items-center justify-between">
                       <label
@@ -325,6 +392,7 @@ const Login = () => {
                   </div>
 
                   {/* Login Button */}
+
                   <button
                     type="submit"
                     disabled={loading}
@@ -336,11 +404,13 @@ const Login = () => {
                           size={18}
                           className="animate-spin"
                         />
+
                         Logging in...
                       </>
                     ) : (
                       <>
                         <LogIn size={18} />
+
                         Login
                       </>
                     )}
@@ -348,6 +418,7 @@ const Login = () => {
                 </form>
 
                 {/* Register */}
+
                 <p className="mt-7 text-center text-sm text-slate-500">
                   Don't have an account?{" "}
                   <Link
@@ -359,6 +430,7 @@ const Login = () => {
                 </p>
 
                 {/* Account Information */}
+
                 <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
                   <p className="text-center text-xs leading-5 text-slate-500">
                     Alumni and faculty accounts use their authorized
@@ -366,6 +438,7 @@ const Login = () => {
                     process.
                   </p>
                 </div>
+
               </div>
             </div>
           </div>
